@@ -1,5 +1,5 @@
 # Crod vr room unity integration
-This package allows you to integrate into your unity§ project the capabilities of the multi-media hall at the CROD 
+This package allows you to integrate into your unity project the capabilities of the multi-media hall at the CROD 
 
 ### Requirements
 - Unity 2019.4 or newer
