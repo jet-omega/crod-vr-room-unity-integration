@@ -8,7 +8,7 @@ This package allows you to integrate into your unity project the capabilities of
 - DirectX12 enabled in project
 
 ### How to install
-1. Download .unitypackage from latest release (https://github.com/ltd-profit/crod-vr-room-unity-integration/releases)
+1. Download .unitypackage file from latest release (https://github.com/ltd-profit/crod-vr-room-unity-integration/releases)
 2. Open your Unity project
 3. Open downloaded file
 4. Import all files in Unity
