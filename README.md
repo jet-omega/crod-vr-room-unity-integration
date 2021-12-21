@@ -1,3 +1,5 @@
+![Alt](https://repobeats.axiom.co/api/embed/6f930d0faebcdc1f5bad03a91d06e91d4522aee3.svg "Repobeats analytics image")
+
 # Crod vr room unity integration
 This package allows you to integrate into your unity project the capabilities of the multi-media hall at the CROD 
 
