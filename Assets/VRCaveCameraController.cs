@@ -2,8 +2,9 @@
 
 public class VRCaveCameraController : MonoBehaviour
 {
-    [SerializeField] [HideInInspector] private Camera UpCamera;
-    [SerializeField] [HideInInspector] private Camera DownCamera;
+    [SerializeField] [HideInInspector] private Camera RoofCamera;
+    [SerializeField] [HideInInspector] private Camera FloorFrontCamera;
+    [SerializeField] [HideInInspector] private Camera FloorBackCamera;
     [SerializeField] [HideInInspector] private Camera LeftCamera;
     [SerializeField] [HideInInspector] private Camera RightCamera;
     [SerializeField] [HideInInspector] private Camera FrontCamera;
@@ -15,7 +16,8 @@ public class VRCaveCameraController : MonoBehaviour
     [SerializeField] private VRCaveDisplay rightDisplay;
     [SerializeField] private VRCaveDisplay leftDisplay;
     [SerializeField] private VRCaveDisplay roofDisplay;
-    [SerializeField] private VRCaveDisplay floorDisplay;
+    [SerializeField] private VRCaveDisplay floorFrontDisplay;
+    [SerializeField] private VRCaveDisplay floorBackDisplay;
 
     private void Awake()
     {
@@ -25,8 +27,9 @@ public class VRCaveCameraController : MonoBehaviour
         SetupDisplay(LeftCamera, leftDisplay);
         SetupDisplay(RightCamera, rightDisplay);
 
-        SetupDisplay(UpCamera, roofDisplay);
-        SetupDisplay(DownCamera, floorDisplay);
+        SetupDisplay(RoofCamera, roofDisplay);
+        SetupDisplay(FloorFrontCamera, floorFrontDisplay);
+        SetupDisplay(FloorBackCamera, floorBackDisplay);
     }
 
     private void SetupDisplay(Camera targetCamera, VRCaveDisplay vrCaveDisplay)
@@ -53,8 +56,9 @@ public class VRCaveCameraController : MonoBehaviour
         InitializeCamera(LeftCamera, z, y, x, leftDisplay);
         InitializeCamera(RightCamera, z, y, x, rightDisplay);
 
-        InitializeCamera(UpCamera, x, z, y, roofDisplay);
-        InitializeCamera(DownCamera, x, z, y, floorDisplay);
+        InitializeCamera(RoofCamera, x, z, y, roofDisplay);
+        InitializeCamera(FloorFrontCamera, x, z, y, floorFrontDisplay);
+        InitializeCamera(FloorBackCamera, x, z, y, floorBackDisplay);
     }
 
     private (float, float, float) GetRoomDimensions()
@@ -90,7 +94,7 @@ public class VRCaveCameraController : MonoBehaviour
                rightDisplay.Index != 0 ||
                leftDisplay.Index != 0 ||
                roofDisplay.Index != 0 ||
-               floorDisplay.Index != 0;
+               floorFrontDisplay.Index != 0;
     }
 
     private void InitializeCamera(Camera targetCamera, float w, float h, float d, VRCaveDisplay display)
@@ -102,15 +106,33 @@ public class VRCaveCameraController : MonoBehaviour
         }
 
         targetCamera.gameObject.SetActive(true);
+        
+        var rotationStep = (int) Mathf.Round(display.Rotation / 90f);
+        var rotation = rotationStep * 90f;
+        
+        w += display.Offset.width;
+        h += display.Offset.height;
+        var xLensShift = display.Offset.x / w;
+        var yLensShift = display.Offset.y / h;
 
-        if (display.Rotation != 0)
+        targetCamera.transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
+            
+        switch (rotationStep % 4)
         {
-            var rotation = display.Rotation;
-            targetCamera.transform.localRotation = Quaternion.Euler(0f, 0f, rotation);
-
-            var rotationStep = (int) Mathf.Round(rotation / 90f);
-            if (rotationStep % 2 != 0)
+            case 1:
+            case -3:
                 (w, h) = (h, w);
+                (xLensShift, yLensShift) = (yLensShift, -xLensShift);
+                break;
+            case 2:
+            case -2:
+                yLensShift = -yLensShift;
+                break;
+            case 3:
+            case -1:
+                (w, h) = (h, w);
+                (xLensShift, yLensShift) = (-yLensShift, xLensShift);
+                break;
         }
 
         targetCamera.usePhysicalProperties = true;
@@ -118,6 +140,7 @@ public class VRCaveCameraController : MonoBehaviour
 
         targetCamera.sensorSize = new Vector2(w, h);
         targetCamera.focalLength = d / 2f;
+        targetCamera.lensShift = new Vector2(xLensShift, yLensShift);
 
         targetCamera.targetDisplay = display.Index - 1;
 
